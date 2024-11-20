@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ページ{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script>
+        function confirmLogout() {
+            return confirm("本当にログアウトしますか？");
+        }
+        
+        function confirmDelete() {
+            return confirm("本当に削除しますか？");
+        }
+        
+        function confirmUnconfirm() {
+            return confirm("未確認に戻してもよろしいですか？");
+        }
+    </script>
+</head>
+<body>
+    <header>
+        <div class="logout-container">
+            <p>ログイン中: {{ user }}
+                {% if session.get('is_admin', False) %}
+                    (管理者)
+                {% endif %}
+            </p>
+            <form action="{{ url_for('logout') }}" method="POST" onsubmit="return confirmLogout();" class="logout-form">
+                <button type="submit" class="btn btn-secondary">ログアウト</button>
+            </form>
+        </div>
+    </header>
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

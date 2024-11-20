@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}勤怠修正申請フォーム{% endblock %}  # Keep only one title block
+
+{% block content %}
+<h1>勤怠修正申請</h1>
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+<div class="alert">{{ messages[0] }}</div>
+{% endif %}
+{% endwith %}
+<form action="{{ url_for('submit') }}" method="POST" class="form">
+    <div class="form-group">
+        <label for="date">修正日付</label>
+        <input type="date" id="date" name="date" required class="form-control short-input">
+    </div>
+    <div class="form-group">
+        <label for="reason">理由</label>
+        <textarea id="reason" name="reason" required class="form-control textarea"></textarea>
+    </div>
+    
+    {% if is_admin %}
+    <div class="form-group">
+        <label for="employee">申請者を選択</label>
+        <select id="employee" name="employee" class="form-control">
+            {% for user in users %}
+                <option value="{{ user }}">{{ user }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    {% endif %}
+    
+    <div class="button-container">
+        <button type="submit" class="btn btn-primary">送信</button>
+        <a href="{{ url_for('list_requests') }}" class="btn btn-secondary">申請一覧を見る</a>
+    </div>
+</form>
+{% endblock %}
