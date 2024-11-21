@@ -222,8 +222,12 @@ def unconfirm_request(request_id):
     flash("申請が未確認に戻されました。")
     return redirect(url_for("list_requests"))
 
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    import os
+    port = int(os.environ.get("PORT", 5000))  # デフォルトで5000を使用
+    app.run(host="0.0.0.0", port=port)
+
 
 
 
