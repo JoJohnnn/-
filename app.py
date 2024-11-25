@@ -233,14 +233,10 @@
 
 
 
-
-=======
->>>>>>> origin/main
 from flask import Flask, request, render_template, redirect, url_for, flash, session
 import pandas as pd
 import os
 from datetime import datetime
-<<<<<<< HEAD
 import boto3
 from botocore.exceptions import NoCredentialsError
 
@@ -249,26 +245,20 @@ app.secret_key = "supersecretkey"
 
 # S3の設定
 S3_BUCKET = "kintaisysytem"
-S3_ACCESS_KEY = "AKIATQPD7JSRZIQLFXVG"
-S3_SECRET_KEY = "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"
+AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
 S3_REGION = "ap-southeast-2"
 
 s3_client = boto3.client(
     's3',
-    aws_access_key_id=S3_ACCESS_KEY,
-    aws_secret_access_key=S3_SECRET_KEY,
+    aws_access_key_id=AWS_ACCESS_KEY_ID,
+    aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
     region_name=S3_REGION
 )
-=======
-
-app = Flask(__name__)
-app.secret_key = "supersecretkey"  
->>>>>>> origin/main
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_FILE = os.path.join(BASE_DIR, "attendance_requests.xlsx")
 
-<<<<<<< HEAD
 
 # S3にアップロード
 def upload_to_s3(file_name, object_name=None):
@@ -300,11 +290,6 @@ if not os.path.exists(DATA_FILE):
         df.to_excel(DATA_FILE, index=False)
         upload_to_s3(DATA_FILE, "attendance_requests.xlsx")
 
-=======
-if not os.path.exists(DATA_FILE):
-    df = pd.DataFrame(columns=["ID", "Date", "Reason", "Employee", "Confirmed", "ConfirmedAt"])
-    df.to_excel(DATA_FILE, index=False)
->>>>>>> origin/main
 
 def generate_id():
     df = pd.read_excel(DATA_FILE)
@@ -312,7 +297,6 @@ def generate_id():
         return 1
     return int(df["ID"].max() + 1)
 
-<<<<<<< HEAD
 
 USER_CREDENTIALS = {
     "Q": "1234",
@@ -321,25 +305,13 @@ USER_CREDENTIALS = {
     "サキ": "1234",
     "氷河": "1234",
     "クリス": "1234",
-=======
-USER_CREDENTIALS = {
-    "Q": "1234",
-    "ジョン": "1234", 
-    "ラン": "1234",
-    "サキ": "1234", 
-    "氷河": "1234",
-    "クリス": "1234", 
->>>>>>> origin/main
     "アグ": "1234",
     "admin": "admin"  # 管理者アカウントを追加
 }
 
 ADMIN_USERS = ["admin"]
 
-<<<<<<< HEAD
 
-=======
->>>>>>> origin/main
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -357,10 +329,7 @@ def login():
 
     return render_template("login.html")
 
-<<<<<<< HEAD
 
-=======
->>>>>>> origin/main
 @app.route("/logout", methods=["POST"])
 def logout():
     session.pop("user", None)
@@ -368,27 +337,17 @@ def logout():
     flash("ログアウトしました。")
     return redirect(url_for("login"))
 
-<<<<<<< HEAD
 
-=======
->>>>>>> origin/main
 @app.route("/")
 def index():
     if "user" not in session:
         flash("ログインしてください。")
         return redirect(url_for("login"))
-<<<<<<< HEAD
 
     users = list(USER_CREDENTIALS.keys()) if session.get("is_admin", False) else []
     return render_template("index.html", user=session["user"], users=users, is_admin=session.get("is_admin", False))
 
 
-=======
-    
-    users = list(USER_CREDENTIALS.keys()) if session.get("is_admin", False) else []
-    return render_template("index.html", user=session["user"], users=users, is_admin=session.get("is_admin", False))
-
->>>>>>> origin/main
 @app.route("/submit", methods=["POST"])
 def submit():
     if "user" not in session:
@@ -397,21 +356,11 @@ def submit():
 
     date = request.form["date"]
     reason = request.form["reason"]
-<<<<<<< HEAD
 
     if session.get("is_admin", False):
         employee = request.form.get("employee", session["user"])
     else:
         employee = session["user"]
-=======
-    
-    if session.get("is_admin", False):
-        employee = request.form.get("employee", session["user"])
-        employee_display = f"{employee}admin"
-    else:
-        employee = session["user"]
-        employee_display = employee
->>>>>>> origin/main
 
     df = pd.read_excel(DATA_FILE)
 
@@ -422,35 +371,20 @@ def submit():
 
     request_id = generate_id()
     new_data = {
-<<<<<<< HEAD
         "ID": request_id,
         "Date": date,
         "Reason": reason,
         "Employee": employee,
         "Confirmed": False,
-=======
-        "ID": request_id, 
-        "Date": date, 
-        "Reason": reason, 
-        "Employee": employee,
-        "EmployeeDisplay": employee_display,
-        "Confirmed": False, 
->>>>>>> origin/main
         "ConfirmedAt": None
     }
     df = pd.concat([df, pd.DataFrame([new_data])], ignore_index=True)
     df.to_excel(DATA_FILE, index=False)
-<<<<<<< HEAD
     upload_to_s3(DATA_FILE, "attendance_requests.xlsx")
 
     return redirect(url_for("list_requests"))
 
 
-=======
-
-    return redirect(url_for("list_requests"))
-
->>>>>>> origin/main
 @app.route("/list")
 def list_requests():
     if "user" not in session:
@@ -460,26 +394,11 @@ def list_requests():
     try:
         df = pd.read_excel(DATA_FILE)
     except Exception:
-<<<<<<< HEAD
         df = pd.DataFrame(columns=["ID", "Date", "Reason", "Employee", "Confirmed", "ConfirmedAt"])
 
     data = df.to_dict(orient="records") if not df.empty else []
     return render_template("list.html", data=data, user=session["user"], is_admin=session.get("is_admin", False))
 
-=======
-        df = pd.DataFrame(columns=["ID", "Date", "Reason", "Employee", "EmployeeDisplay", "Confirmed", "ConfirmedAt"])
-
-    if df.empty:
-        data = []
-    else:
-        df = df[df["ID"].notnull()]
-        data = df.to_dict(orient="records")
-
-    return render_template("list.html", 
-                           data=data, 
-                           user=session["user"], 
-                           is_admin=session.get("is_admin", False))
->>>>>>> origin/main
 
 @app.route("/edit/<int:request_id>")
 def edit_request(request_id):
@@ -489,32 +408,17 @@ def edit_request(request_id):
 
     df = pd.read_excel(DATA_FILE)
     record = df[df["ID"] == request_id]
-<<<<<<< HEAD
 
-=======
-    
->>>>>>> origin/main
     if record.empty:
         flash("該当の申請が見つかりません。")
         return redirect(url_for("list_requests"))
 
     record = record.to_dict(orient="records")[0]
-<<<<<<< HEAD
     if record["Employee"] != session["user"] and not session.get("is_admin", False):
         return redirect(url_for("list_requests"))
 
     return render_template("edit.html", record=record, user=session["user"], is_admin=session.get("is_admin", False))
 
-=======
-
-    if record["Employee"] != session["user"] and not session.get("is_admin", False):
-        return redirect(url_for("list_requests"))
-
-    return render_template("edit.html", 
-                           record=record, 
-                           user=session["user"], 
-                           is_admin=session.get("is_admin", False))
->>>>>>> origin/main
 
 @app.route("/update/<int:request_id>", methods=["POST"])
 def update_request(request_id):
@@ -524,7 +428,6 @@ def update_request(request_id):
 
     date = request.form["date"]
     reason = request.form["reason"]
-<<<<<<< HEAD
 
     if session.get("is_admin", False):
         employee = request.form.get("employee", session["user"])
@@ -532,40 +435,20 @@ def update_request(request_id):
         employee = session["user"]
 
     df = pd.read_excel(DATA_FILE)
-=======
-    
-    if session.get("is_admin", False):
-        employee = request.form.get("employee", session["user"])
-        employee_display = f"{employee}admin"
-    else:
-        employee = session["user"]
-        employee_display = employee
-
-    df = pd.read_excel(DATA_FILE)
-
->>>>>>> origin/main
     duplicate = df[(df["Employee"] == employee) & (df["Date"] == date) & (df["ID"] != request_id)]
     if not duplicate.empty:
         flash("同じ修正日で既に申請があります。")
         return redirect(url_for("edit_request", request_id=request_id))
 
-<<<<<<< HEAD
     df.loc[df["ID"] == request_id, ["Date", "Reason", "Employee", "Confirmed", "ConfirmedAt"]] = [
         date, reason, employee, False, None]
     df.to_excel(DATA_FILE, index=False)
     upload_to_s3(DATA_FILE, "attendance_requests.xlsx")
-=======
-    df.loc[df["ID"] == request_id, ["Date", "Reason", "Employee", "EmployeeDisplay", "Confirmed", "ConfirmedAt"]] = [date, reason, employee, employee_display, False, None]
-    df.to_excel(DATA_FILE, index=False)
->>>>>>> origin/main
 
     flash("申請が正常に更新されました。再度確認してください。")
     return redirect(url_for("list_requests"))
 
-<<<<<<< HEAD
 
-=======
->>>>>>> origin/main
 @app.route("/delete/<int:request_id>", methods=["POST"])
 def delete_request(request_id):
     if "user" not in session:
@@ -573,27 +456,14 @@ def delete_request(request_id):
         return redirect(url_for("login"))
 
     df = pd.read_excel(DATA_FILE)
-<<<<<<< HEAD
     df = df[df["ID"] != request_id]
     df.to_excel(DATA_FILE, index=False)
     upload_to_s3(DATA_FILE, "attendance_requests.xlsx")
-=======
-    record = df[df["ID"] == request_id].to_dict(orient="records")[0]
-    
-    if record["Employee"] != session["user"] and not session.get("is_admin", False):
-        return redirect(url_for("list_requests"))
-    
-    df = df[df["ID"] != request_id]
-    df.to_excel(DATA_FILE, index=False)
->>>>>>> origin/main
 
     flash("申請が正常に削除されました。")
     return redirect(url_for("list_requests"))
 
-<<<<<<< HEAD
 
-=======
->>>>>>> origin/main
 @app.route("/confirm/<int:request_id>", methods=["POST"])
 def confirm_request(request_id):
     if "user" not in session or not session.get("is_admin", False):
@@ -604,18 +474,12 @@ def confirm_request(request_id):
     current_time = datetime.now().strftime("%Y/%m/%d %H:%M")
     df.loc[df["ID"] == request_id, ["Confirmed", "ConfirmedAt"]] = [True, current_time]
     df.to_excel(DATA_FILE, index=False)
-<<<<<<< HEAD
     upload_to_s3(DATA_FILE, "attendance_requests.xlsx")
-=======
->>>>>>> origin/main
 
     flash("申請が確認済みになりました。")
     return redirect(url_for("list_requests"))
 
-<<<<<<< HEAD
 
-=======
->>>>>>> origin/main
 @app.route("/unconfirm/<int:request_id>", methods=["POST"])
 def unconfirm_request(request_id):
     if "user" not in session or not session.get("is_admin", False):
@@ -625,24 +489,11 @@ def unconfirm_request(request_id):
     df = pd.read_excel(DATA_FILE)
     df.loc[df["ID"] == request_id, ["Confirmed", "ConfirmedAt"]] = [False, None]
     df.to_excel(DATA_FILE, index=False)
-<<<<<<< HEAD
     upload_to_s3(DATA_FILE, "attendance_requests.xlsx")
-=======
->>>>>>> origin/main
 
     flash("申請が未確認に戻されました。")
     return redirect(url_for("list_requests"))
 
 
 if __name__ == "__main__":
-<<<<<<< HEAD
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
-=======
-    import os
-    port = int(os.environ.get("PORT", 5000))  # デフォルトで5000を使用
-    app.run(host="0.0.0.0", port=port)
-
-
-
-
->>>>>>> origin/main
