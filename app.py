@@ -66,7 +66,8 @@ def index():
         flash("ログインしてください。")
         return redirect(url_for("login"))
     
-    return render_template("index.html", user=session["user"], is_admin=session.get("is_admin", False))
+    users = USER_CREDENTIALS.keys() if session.get("is_admin", False) else None
+    return render_template("index.html", user=session["user"], is_admin=session.get("is_admin", False), users=users)
 
 @app.route("/submit", methods=["POST"])
 def submit():
@@ -76,7 +77,7 @@ def submit():
 
     date = request.form["date"]
     reason = request.form["reason"]
-    employee = session["user"]
+    employee = request.form["employee"] if session.get("is_admin", False) else session["user"]
 
     # 重複確認
     duplicate = AttendanceRequest.query.filter_by(employee=employee, date=date).first()
@@ -98,12 +99,11 @@ def list_requests():
         flash("ログインしてください。")
         return redirect(url_for("login"))
 
-    # データを取得
-    if session.get("is_admin", False):
-        requests = AttendanceRequest.query.all()
-    else:
-        requests = AttendanceRequest.query.filter_by(employee=session["user"]).all()
-
+    requests = (
+        AttendanceRequest.query.all()
+        if session.get("is_admin", False)
+        else AttendanceRequest.query.filter_by(employee=session["user"]).all()
+    )
     return render_template("list.html", data=requests, user=session["user"], is_admin=session.get("is_admin", False))
 
 @app.route("/edit/<int:request_id>", methods=["GET", "POST"])
@@ -114,13 +114,36 @@ def edit_request(request_id):
         return redirect(url_for("list_requests"))
 
     if request.method == "POST":
+        # 更新処理
         request_to_edit.date = request.form["date"]
         request_to_edit.reason = request.form["reason"]
+
+        # 確認ステータスをリセット
+        if request_to_edit.confirmed:
+            request_to_edit.confirmed = False
+            request_to_edit.confirmed_at = None
+
         db.session.commit()
-        flash("申請が更新されました。")
+        flash("申請が更新され、確認ステータスは未確認に戻りました。")
         return redirect(url_for("list_requests"))
 
     return render_template("edit.html", record=request_to_edit)
+
+@app.route("/delete_request/<int:request_id>", methods=["POST"])
+def delete_request(request_id):
+    if "user" not in session or not session.get("is_admin", False):
+        flash("権限がありません。")
+        return redirect(url_for("login"))
+
+    request_to_delete = AttendanceRequest.query.get(request_id)
+    if request_to_delete:
+        db.session.delete(request_to_delete)
+        db.session.commit()
+        flash("申請が削除されました。")
+    else:
+        flash("該当の申請が見つかりません。")
+
+    return redirect(url_for("list_requests"))
 
 @app.route("/confirm/<int:request_id>", methods=["POST"])
 def confirm_request(request_id):

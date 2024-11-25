@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}勤怠修正申請フォーム{% endblock %}  # Keep only one title block
+{% block title %}勤怠修正申請フォーム{% endblock %}
 
 {% block content %}
 <h1>勤怠修正申請</h1>
@@ -18,7 +18,7 @@
         <label for="reason">理由</label>
         <textarea id="reason" name="reason" required class="form-control textarea"></textarea>
     </div>
-    
+
     {% if is_admin %}
     <div class="form-group">
         <label for="employee">申請者を選択</label>
@@ -29,7 +29,7 @@
         </select>
     </div>
     {% endif %}
-    
+
     <div class="button-container">
         <button type="submit" class="btn btn-primary">送信</button>
         <a href="{{ url_for('list_requests') }}" class="btn btn-secondary">申請一覧を見る</a>

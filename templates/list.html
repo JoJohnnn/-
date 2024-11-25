@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}申請一覧{% endblock %}  # Keep only one title block
+{% block title %}申請一覧{% endblock %}
 
 {% block content %}
 <h1>勤怠修正申請一覧</h1>
@@ -23,32 +23,32 @@
         <tbody>
             {% for row in data %}
             <tr>
-                <td>{{ row['ID'] }}</td>
-                <td>{{ row['Date'] }}</td>
-                <td class="reason-cell">{{ row['Reason'] }}</td>
-                <td>{{ row['EmployeeDisplay'] }}</td>
+                <td>{{ row.id }}</td>
+                <td>{{ row.date }}</td>
+                <td class="reason-cell">{{ row.reason }}</td>
+                <td>{{ row.employee }}</td>
                 <td>
-                    {% if row['Confirmed'] %}
+                    {% if row.confirmed %}
                         <span class="status confirmed">✅ 確認済み</span>
                     {% else %}
                         <span class="status pending">未確認</span>
                     {% endif %}
                 </td>
-                <td>{{ row['ConfirmedAt'] if row['ConfirmedAt'] else "未確認" }}</td>
+                <td>{{ row.confirmed_at if row.confirmed_at else "未確認" }}</td>
                 <td class="action-edit-delete">
                     <a href="{{ url_for('edit_request', request_id=row.id) }}" class="btn btn-edit">編集</a>
-                    <form action="{{ url_for('delete_request', request_id=row['ID']) }}" method="POST" style="display: inline;" onsubmit="return confirmDelete();">
+                    <form action="{{ url_for('delete_request', request_id=row.id) }}" method="POST" style="display: inline;" onsubmit="return confirmDelete();">
                         <button type="submit" class="btn btn-delete">削除</button>
                     </form>
                 </td>
                 {% if is_admin %}
                 <td class="action-confirm">
-                    {% if not row['Confirmed'] %}
-                    <form action="{{ url_for('confirm_request', request_id=row['ID']) }}" method="POST">
+                    {% if not row.confirmed %}
+                    <form action="{{ url_for('confirm_request', request_id=row.id) }}" method="POST">
                         <button type="submit" class="btn btn-confirm">確認済み</button>
                     </form>
                     {% else %}
-                    <form action="{{ url_for('unconfirm_request', request_id=row['ID']) }}" method="POST" onsubmit="return confirmUnconfirm();">
+                    <form action="{{ url_for('unconfirm_request', request_id=row.id) }}" method="POST" onsubmit="return confirmUnconfirm();">
                         <button type="submit" class="btn btn-unconfirm">未確認</button>
                     </form>
                     {% endif %}
