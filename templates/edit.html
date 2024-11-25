@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>修正申請編集</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>修正申請を編集</h1>
+        <p>ログイン中: {{ user }}</p>
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div class="alert">
+            {{ messages[0] }}
+        </div>
+        {% endif %}
+        {% endwith %}
+        <form action="{{ url_for('update_request', request_id=record['ID']) }}" method="POST" class="form">
+            <div class="form-group">
+                <label for="date">修正日付</label>
+                <input type="date" id="date" name="date" value="{{ record['Date'] }}" required class="form-control short-input">
+            </div>
+            
+
+            <div class="form-group">
+                <label for="reason">理由</label>
+                <textarea id="reason" name="reason" required class="form-control textarea">{{ record['Reason'] }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="employee">従業員</label>
+                <select id="employee" name="employee" required class="form-control">
+                    <option value="Q" {% if record['Employee'] == 'Q' %}selected{% endif %}>Q</option>
+                    <option value="ジョン" {% if record['Employee'] == 'ジョン' %}selected{% endif %}>ジョン</option>
+                    <option value="ラン" {% if record['Employee'] == 'ラン' %}selected{% endif %}>ラン</option>
+                    <option value="サキ" {% if record['Employee'] == 'サキ' %}selected{% endif %}>サキ</option>
+                    <option value="氷河" {% if record['Employee'] == '氷河' %}selected{% endif %}>氷河</option>
+                    <option value="クリス" {% if record['Employee'] == 'クリス' %}selected{% endif %}>クリス</option>
+                    <option value="アグ" {% if record['Employee'] == 'アグ' %}selected{% endif %}>アグ</option>
+                </select>
+            </div>
+
+            <div class="button-container">
+                <button type="submit" class="btn btn-primary">更新</button>
+                <a href="{{ url_for('list_requests') }}" class="btn btn-secondary">戻る</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
