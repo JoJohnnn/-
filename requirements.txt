@@ -1,11 +1,10 @@
-boto3==1.35.68
-botocore==1.35.68
-cffi==1.17.1
-cryptography==43.0.3
-jmespath==1.0.1
-pycparser==2.22
-python-dateutil==2.9.0.post0
-s3transfer==0.10.4
-six==1.16.0
-urllib3==2.2.3
-wheel @ file:///opt/homebrew/Cellar/python%403.13/3.13.0_1/libexec/wheel-0.44.0-py3-none-any.whl#sha256=f49b82715dce6365f75eddcb0a9bb47d0d46feaf14bbc739dfcbd677b7073f5b
+blinker==1.9.0
+click==8.1.7
+Flask==3.1.0
+Flask-SQLAlchemy==3.1.1
+itsdangerous==2.2.0
+Jinja2==3.1.4
+MarkupSafe==3.0.2
+SQLAlchemy==2.0.36
+typing_extensions==4.12.2
+Werkzeug==3.1.3
