@@ -1,12 +1,16 @@
 from flask import Flask, request, render_template, redirect, url_for, flash, session
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+import os
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
 
-# SQLiteデータベースの設定
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///attendance_requests.db'
+# データベースの設定 (PostgreSQL or SQLite)
+DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///attendance_requests.db")
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://")  # SQLAlchemy用に修正
+app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
@@ -180,6 +184,5 @@ def unconfirm_request(request_id):
     return redirect(url_for("list_requests"))
 
 if __name__ == "__main__":
-    import os
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
