@@ -106,6 +106,22 @@ def list_requests():
 
     return render_template("list.html", data=requests, user=session["user"], is_admin=session.get("is_admin", False))
 
+@app.route("/edit/<int:request_id>", methods=["GET", "POST"])
+def edit_request(request_id):
+    request_to_edit = AttendanceRequest.query.get(request_id)
+    if not request_to_edit:
+        flash("該当の申請が見つかりません。")
+        return redirect(url_for("list_requests"))
+
+    if request.method == "POST":
+        request_to_edit.date = request.form["date"]
+        request_to_edit.reason = request.form["reason"]
+        db.session.commit()
+        flash("申請が更新されました。")
+        return redirect(url_for("list_requests"))
+
+    return render_template("edit.html", record=request_to_edit)
+
 @app.route("/confirm/<int:request_id>", methods=["POST"])
 def confirm_request(request_id):
     if "user" not in session or not session.get("is_admin", False):
