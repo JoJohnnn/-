@@ -225,6 +225,22 @@ s3 = boto3.client(
     aws_secret_access_key=S3_SECRET_KEY,
 )
 
+
+# 確認用データフレーム
+df = pd.DataFrame({"id": [1], "name": ["テスト"]})
+
+# S3に保存
+buffer = BytesIO()
+df.to_excel(buffer, index=False)
+buffer.seek(0)
+s3.put_object(Bucket=S3_BUCKET, Key="test.xlsx", Body=buffer.getvalue())
+print("S3に保存しました")
+
+# S3から読み込み
+obj = s3.get_object(Bucket=S3_BUCKET, Key="test.xlsx")
+df_loaded = pd.read_excel(BytesIO(obj["Body"].read()))
+print("S3から読み込み:", df_loaded)
+
 # Excel ファイル名
 EXCEL_FILE_KEY = "attendance_requests.xlsx"
 
@@ -417,3 +433,4 @@ def unconfirm_request(request_id):
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
