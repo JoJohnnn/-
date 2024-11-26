@@ -294,7 +294,7 @@ def submit():
         "confirmed": False,
         "confirmed_at": None
     }
-    df = df.append(new_request, ignore_index=True)
+    df = pd.concat([df, pd.DataFrame([new_request])], ignore_index=True)  # 修正箇所
     save_requests(df)
 
     flash("申請が送信されました。")
