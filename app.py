@@ -203,6 +203,9 @@ import os
 import pandas as pd
 import boto3
 from io import BytesIO
+from dotenv import load_dotenv
+load_dotenv()
+
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
@@ -221,6 +224,7 @@ s3 = boto3.client(
     aws_secret_access_key=S3_SECRET_KEY,
 )
 
+print("S3_BUCKET:", S3_BUCKET)
 # Excel ファイル名
 EXCEL_FILE_KEY = "attendance_requests.xlsx"
 
