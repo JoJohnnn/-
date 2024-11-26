@@ -198,43 +198,41 @@
 
 
 from flask import Flask, request, render_template, redirect, url_for, flash, session
-import pandas as pd
 from datetime import datetime
 import os
+import pandas as pd
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
 
-# Excelファイルの保存先
+# Excel ファイルパス
 EXCEL_FILE = "attendance_requests.xlsx"
 
-# 初期データの準備（必要に応じて空ファイルを作成）
+# 初期化：Excel ファイルが存在しない場合、作成する
 if not os.path.exists(EXCEL_FILE):
-    pd.DataFrame(columns=["id", "date", "reason", "employee", "confirmed", "confirmed_at"]).to_excel(EXCEL_FILE, index=False)
+    df = pd.DataFrame(columns=["id", "date", "reason", "employee", "confirmed", "confirmed_at"])
+    df.to_excel(EXCEL_FILE, index=False)
 
-# ユーザー情報
+# Excel からデータを読み込む関数
+def read_requests():
+    return pd.read_excel(EXCEL_FILE)
+
+# Excel にデータを保存する関数
+def save_requests(df):
+    df.to_excel(EXCEL_FILE, index=False)
+
 USER_CREDENTIALS = {
     "Q": "1234",
-    "ジョン": "1234",
+    "ジョン": "1234", 
     "ラン": "1234",
-    "サキ": "1234",
+    "サキ": "1234", 
     "氷河": "1234",
-    "クリス": "1234",
+    "クリス": "1234", 
     "アグ": "1234",
     "admin": "admin"
 }
 
 ADMIN_USERS = ["admin"]
-
-# Excel操作用関数
-def read_excel_data():
-    try:
-        return pd.read_excel(EXCEL_FILE)
-    except FileNotFoundError:
-        return pd.DataFrame(columns=["id", "date", "reason", "employee", "confirmed", "confirmed_at"])
-
-def save_to_excel(dataframe):
-    dataframe.to_excel(EXCEL_FILE, index=False)
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -265,6 +263,7 @@ def index():
     if "user" not in session:
         flash("ログインしてください。")
         return redirect(url_for("login"))
+    
     users = USER_CREDENTIALS.keys() if session.get("is_admin", False) else None
     return render_template("index.html", user=session["user"], is_admin=session.get("is_admin", False), users=users)
 
@@ -278,22 +277,25 @@ def submit():
     reason = request.form["reason"]
     employee = request.form["employee"] if session.get("is_admin", False) else session["user"]
 
-    df = read_excel_data()
+    df = read_requests()
 
-    if not df[(df["employee"] == employee) & (df["date"] == date)].empty:
+    # 重複確認
+    if not df[df["date"].eq(date) & df["employee"].eq(employee)].empty:
         flash("同じ修正日で既に申請があります。")
         return redirect(url_for("index"))
 
-    new_entry = {
-        "id": df["id"].max() + 1 if not df.empty else 1,
+    # 新しい申請を追加
+    new_id = df["id"].max() + 1 if not df.empty else 1
+    new_request = {
+        "id": new_id,
         "date": date,
         "reason": reason,
         "employee": employee,
         "confirmed": False,
-        "confirmed_at": None,
+        "confirmed_at": None
     }
-    df = df.append(new_entry, ignore_index=True)
-    save_to_excel(df)
+    df = df.append(new_request, ignore_index=True)
+    save_requests(df)
 
     flash("申請が送信されました。")
     return redirect(url_for("list_requests"))
@@ -304,12 +306,52 @@ def list_requests():
         flash("ログインしてください。")
         return redirect(url_for("login"))
 
-    df = read_excel_data()
+    df = read_requests()
 
-    if not session.get("is_admin", False):
-        df = df[df["employee"] == session["user"]]
+    requests = (
+        df.to_dict("records")
+        if session.get("is_admin", False)
+        else df[df["employee"].eq(session["user"])].to_dict("records")
+    )
+    return render_template("list.html", data=requests, user=session["user"], is_admin=session.get("is_admin", False))
 
-    return render_template("list.html", data=df.to_dict(orient="records"), user=session["user"], is_admin=session.get("is_admin", False))
+@app.route("/edit/<int:request_id>", methods=["GET", "POST"])
+def edit_request(request_id):
+    df = read_requests()
+    request_to_edit = df[df["id"] == request_id]
+
+    if request_to_edit.empty:
+        flash("該当の申請が見つかりません。")
+        return redirect(url_for("list_requests"))
+
+    if request.method == "POST":
+        df.loc[df["id"] == request_id, ["date", "reason", "confirmed", "confirmed_at"]] = [
+            request.form["date"],
+            request.form["reason"],
+            False,
+            None
+        ]
+        save_requests(df)
+        flash("申請が更新されました。")
+        return redirect(url_for("list_requests"))
+
+    return render_template("edit.html", record=request_to_edit.iloc[0])
+
+@app.route("/delete_request/<int:request_id>", methods=["POST"])
+def delete_request(request_id):
+    if "user" not in session or not session.get("is_admin", False):
+        flash("権限がありません。")
+        return redirect(url_for("login"))
+
+    df = read_requests()
+    if request_id in df["id"].values:
+        df = df[df["id"] != request_id]
+        save_requests(df)
+        flash("申請が削除されました。")
+    else:
+        flash("該当の申請が見つかりません。")
+
+    return redirect(url_for("list_requests"))
 
 @app.route("/confirm/<int:request_id>", methods=["POST"])
 def confirm_request(request_id):
@@ -317,12 +359,10 @@ def confirm_request(request_id):
         flash("権限がありません。")
         return redirect(url_for("login"))
 
-    df = read_excel_data()
-
+    df = read_requests()
     if request_id in df["id"].values:
-        df.loc[df["id"] == request_id, "confirmed"] = True
-        df.loc[df["id"] == request_id, "confirmed_at"] = datetime.now()
-        save_to_excel(df)
+        df.loc[df["id"] == request_id, ["confirmed", "confirmed_at"]] = [True, datetime.now()]
+        save_requests(df)
         flash("申請が確認済みになりました。")
     else:
         flash("該当の申請が見つかりません。")
@@ -335,12 +375,10 @@ def unconfirm_request(request_id):
         flash("権限がありません。")
         return redirect(url_for("login"))
 
-    df = read_excel_data()
-
+    df = read_requests()
     if request_id in df["id"].values:
-        df.loc[df["id"] == request_id, "confirmed"] = False
-        df.loc[df["id"] == request_id, "confirmed_at"] = None
-        save_to_excel(df)
+        df.loc[df["id"] == request_id, ["confirmed", "confirmed_at"]] = [False, None]
+        save_requests(df)
         flash("申請が未確認に戻されました。")
     else:
         flash("該当の申請が見つかりません。")
