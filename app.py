@@ -201,33 +201,52 @@ from flask import Flask, request, render_template, redirect, url_for, flash, ses
 from datetime import datetime
 import os
 import pandas as pd
+import boto3
+from io import BytesIO
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
 
-# Excel ファイルパス
-EXCEL_FILE = "attendance_requests.xlsx"
+# 環境変数から AWS 設定を取得
+S3_BUCKET = os.environ.get("S3_BUCKET")
+S3_REGION = os.environ.get("S3_REGION")
+S3_ACCESS_KEY = os.environ.get("AWS_ACCESS_KEY_ID")
+S3_SECRET_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
 
-# 初期化：Excel ファイルが存在しない場合、作成する
-if not os.path.exists(EXCEL_FILE):
-    df = pd.DataFrame(columns=["id", "date", "reason", "employee", "confirmed", "confirmed_at"])
-    df.to_excel(EXCEL_FILE, index=False)
+# boto3 クライアントの設定
+s3 = boto3.client(
+    "s3",
+    region_name=S3_REGION,
+    aws_access_key_id=S3_ACCESS_KEY,
+    aws_secret_access_key=S3_SECRET_KEY,
+)
+
+# Excel ファイル名
+EXCEL_FILE_KEY = "attendance_requests.xlsx"
 
 # Excel からデータを読み込む関数
 def read_requests():
-    return pd.read_excel(EXCEL_FILE)
+    try:
+        obj = s3.get_object(Bucket=S3_BUCKET, Key=EXCEL_FILE_KEY)
+        return pd.read_excel(BytesIO(obj["Body"].read()))
+    except s3.exceptions.NoSuchKey:
+        # 初回読み込み時にファイルがない場合の対応
+        return pd.DataFrame(columns=["id", "date", "reason", "employee", "confirmed", "confirmed_at"])
 
 # Excel にデータを保存する関数
 def save_requests(df):
-    df.to_excel(EXCEL_FILE, index=False)
+    with BytesIO() as output:
+        df.to_excel(output, index=False)
+        output.seek(0)
+        s3.put_object(Bucket=S3_BUCKET, Key=EXCEL_FILE_KEY, Body=output.getvalue())
 
 USER_CREDENTIALS = {
     "Q": "1234",
-    "ジョン": "1234", 
+    "ジョン": "1234",
     "ラン": "1234",
-    "サキ": "1234", 
+    "サキ": "1234",
     "氷河": "1234",
-    "クリス": "1234", 
+    "クリス": "1234",
     "アグ": "1234",
     "admin": "admin"
 }
@@ -263,7 +282,7 @@ def index():
     if "user" not in session:
         flash("ログインしてください。")
         return redirect(url_for("login"))
-    
+
     users = USER_CREDENTIALS.keys() if session.get("is_admin", False) else None
     return render_template("index.html", user=session["user"], is_admin=session.get("is_admin", False), users=users)
 
@@ -294,7 +313,7 @@ def submit():
         "confirmed": False,
         "confirmed_at": None
     }
-    df = pd.concat([df, pd.DataFrame([new_request])], ignore_index=True)  # 修正箇所
+    df = pd.concat([df, pd.DataFrame([new_request])], ignore_index=True)
     save_requests(df)
 
     flash("申請が送信されました。")
