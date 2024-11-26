@@ -204,8 +204,9 @@ import pandas as pd
 import boto3
 from io import BytesIO
 from dotenv import load_dotenv
-load_dotenv()
 
+# 環境変数を読み込み
+load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
@@ -224,7 +225,6 @@ s3 = boto3.client(
     aws_secret_access_key=S3_SECRET_KEY,
 )
 
-print("S3_BUCKET:", S3_BUCKET)
 # Excel ファイル名
 EXCEL_FILE_KEY = "attendance_requests.xlsx"
 
@@ -236,13 +236,19 @@ def read_requests():
     except s3.exceptions.NoSuchKey:
         # 初回読み込み時にファイルがない場合の対応
         return pd.DataFrame(columns=["id", "date", "reason", "employee", "confirmed", "confirmed_at"])
+    except Exception as e:
+        flash(f"データの読み込み中にエラーが発生しました: {e}")
+        return pd.DataFrame(columns=["id", "date", "reason", "employee", "confirmed", "confirmed_at"])
 
 # Excel にデータを保存する関数
 def save_requests(df):
-    with BytesIO() as output:
-        df.to_excel(output, index=False)
-        output.seek(0)
-        s3.put_object(Bucket=S3_BUCKET, Key=EXCEL_FILE_KEY, Body=output.getvalue())
+    try:
+        with BytesIO() as output:
+            df.to_excel(output, index=False)
+            output.seek(0)
+            s3.put_object(Bucket=S3_BUCKET, Key=EXCEL_FILE_KEY, Body=output.getvalue())
+    except Exception as e:
+        flash(f"データの保存中にエラーが発生しました: {e}")
 
 USER_CREDENTIALS = {
     "Q": "1234",
