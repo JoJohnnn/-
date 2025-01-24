@@ -1,98 +1,118 @@
-/* 全体設定 */
-body {
-    font-family: 'Arial', sans-serif;
-    background-color: #f7f9fc;
+/* === 全体のリセットと基本設定 === */
+* {
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
 }
 
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f8f9fa;
+    color: #212529;
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+}
+
+/* === コンテナ設定 === */
 .container {
     max-width: 1200px;
-    margin: 50px auto;
+    margin: 40px auto;
     background: #ffffff;
     padding: 30px;
     border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 h1 {
     text-align: center;
     margin-bottom: 30px;
-    color: #333;
+    color: #333333;
 }
 
-/* フォーム設定 */
+/* === フォーム設定 === */
 .form {
     display: flex;
     flex-direction: column;
+    gap: 15px;
 }
 
 .form-group {
-    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
 }
 
 .form-group label {
     font-weight: bold;
     margin-bottom: 5px;
-    display: block;
 }
 
 .form-control {
     padding: 10px;
-    border: 1px solid #ddd;
+    font-size: 16px;
+    border: 1px solid #ced4da;
     border-radius: 5px;
-    font-size: 14px;
-    width: 100%;
+    outline: none;
 }
 
-.form-control.textarea {
-    resize: none;
-    height: 120px;
+.form-control:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.25);
 }
 
-/* フラッシュメッセージ */
+/* === フラッシュメッセージ === */
 .alert {
     margin-bottom: 20px;
     padding: 15px;
-    border: 1px solid #f5c6cb;
-    background-color: #f8d7da;
-    color: #721c24;
     border-radius: 5px;
+    font-size: 14px;
 }
 
-/* テーブル設定 */
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.alert-error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* === テーブル設定 === */
 .table-container {
     overflow-x: auto;
+    margin-bottom: 20px;
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
     margin-bottom: 20px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
+    background-color: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
     overflow: hidden;
 }
 
 table thead {
-    background-color: #4CAF50;
+    background-color: #007bff;
     color: white;
 }
 
 table th, table td {
     padding: 15px;
-    border-bottom: 1px solid #ddd;
     text-align: center;
-    vertical-align: middle;
-    font-size: 14px;
+    border-bottom: 1px solid #dee2e6;
 }
 
 table tbody tr:nth-child(even) {
-    background-color: #f9f9f9;
+    background-color: #f8f9fa;
 }
 
 table tbody tr:hover {
-    background-color: #f1f1f1;
+    background-color: #e9ecef;
 }
 
 .reason-cell {
@@ -100,11 +120,11 @@ table tbody tr:hover {
     word-wrap: break-word;
     word-break: break-word;
     max-width: 300px;
-    overflow: hidden;
 }
 
-/* ステータス */
+/* === ステータス表示 === */
 .status {
+    display: inline-block;
     font-weight: bold;
     padding: 5px 10px;
     border-radius: 5px;
@@ -120,16 +140,18 @@ table tbody tr:hover {
     color: #721c24;
 }
 
-/* ボタン */
+/* === ボタン設定 === */
 .btn {
-    padding: 10px 20px;
+    display: inline-block;
+    padding: 8px 15px;
+    font-size: 14px;
+    font-weight: bold;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    font-size: 14px;
-    text-align: center;
     text-decoration: none;
-    display: inline-block;
+    text-align: center;
+    transition: background-color 0.3s ease;
 }
 
 .btn-primary {
@@ -186,30 +208,25 @@ table tbody tr:hover {
     background-color: #e0a800;
 }
 
-/* ボタン配置 */
+/* === ボタンコンテナ設定 === */
 .button-container {
-    text-align: center;
-    margin-top: 20px;
+    display: flex;
+    justify-content: center; /* ボタン全体を中央に揃える */
+    gap: 10px; /* ボタン間に10pxの隙間を追加 */
+    margin-top: 20px; /* 上部マージンで少し下に配置 */
 }
 
-/* 修正日付の入力フィールドを短くする */
-.short-input {
-    width: 100px;
-    max-width: 100%;
+.button-container .btn {
+    flex: 0 0 auto;
 }
 
-
-
-
-
-/* ログアウトボタン */
+/* === ログアウトセクション === */
 .logout-container {
     display: flex;
     justify-content: flex-end;
     align-items: center;
     padding: 10px;
-    background-color: #f1f1f1;
-    border-bottom: 1px solid #ddd;
+    background-color: #e9ecef;
 }
 
 .logout-container p {
@@ -219,8 +236,9 @@ table tbody tr:hover {
 }
 
 .logout-form button {
-    font-size: 14px;
-    padding: 5px 10px;
+    font-size: 13px;
+    font-weight: bold;
+    padding: 8px 15px;
     border: none;
     border-radius: 5px;
     background-color: #6c757d;
@@ -232,18 +250,44 @@ table tbody tr:hover {
     background-color: #5a6268;
 }
 
-
-/* admin 専用フォームスタイル */
-.admin-only {
-    border: 1px solid #007bff;
-    background-color: #f0f8ff;
-    padding: 10px;
-    border-radius: 5px;
-    margin-top: 20px;
+/* === ログインボタン位置調整 === */
+.login-button-container {
+    margin-top: 40px; /* ログインボタンを下に配置 */
+    display: flex;
+    justify-content: center;
 }
 
-.admin-only select {
-    width: 100%;
-    padding: 10px;
-    margin-top: 10px;
+/* === レスポンシブ対応 === */
+@media screen and (max-width: 768px) {
+    body {
+        font-size: 14px; /* 全体の文字サイズを少し小さく */
+    }
+
+    .container {
+        padding: 20px;
+    }
+
+    table th, table td {
+        font-size: 12px; /* テーブルの文字サイズを小さく */
+        padding: 10px;
+    }
+
+    .btn {
+        font-size: 12px; /* ボタン文字を小さく */
+        padding: 6px 10px;
+    }
+
+    /* 編集と削除ボタンを横並びに */
+    .action-edit-delete {
+        display: flex;
+        justify-content: space-around;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .btn-edit,
+    .btn-delete {
+        width: 48%; /* ボタンが横並びで均等な幅 */
+        padding: 5px;
+    }
 }
