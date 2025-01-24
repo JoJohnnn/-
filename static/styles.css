@@ -260,7 +260,7 @@ table tbody tr:hover {
 /* === レスポンシブ対応 === */
 @media screen and (max-width: 768px) {
     body {
-        font-size: 7px; /* 全体の文字サイズを少し小さく */
+        font-size: 10px; /* 全体の文字サイズを少し小さく */
     }
 
     .container {
