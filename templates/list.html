@@ -4,6 +4,16 @@
 
 {% block content %}
 <h1>勤怠修正申請一覧</h1>
+
+<div class="filter-container">
+    <label for="filter-status">確認ステータス:</label>
+    <select id="filter-status" name="filter-status" onchange="applyFilter()">
+        <option value="">すべて</option>
+        <option value="confirmed">確認済み</option>
+        <option value="unconfirmed">未確認</option>
+    </select>
+</div>
+
 <div class="table-container">
     <table>
         <thead>
@@ -20,9 +30,9 @@
                 {% endif %}
             </tr>
         </thead>
-        <tbody>
-            {% for row in data %}
-            <tr>
+        <tbody id="record-list">
+            {% for row in data|sort(attribute='date', reverse=true) %}
+            <tr data-status="{{ 'confirmed' if row.confirmed else 'unconfirmed' }}">
                 <td>{{ row.id }}</td>
                 <td>{{ row.date }}</td>
                 <td class="reason-cell">{{ row.reason }}</td>
@@ -34,7 +44,7 @@
                         <span class="status pending">未確認</span>
                     {% endif %}
                 </td>
-                <td>{{ row.confirmed_at if row.confirmed_at else "未確認" }}</td>
+                <td>{{ row.formatted_confirmed_at }}</td>
                 <td class="action-edit-delete">
                     <a href="{{ url_for('edit_request', request_id=row.id) }}" class="btn btn-edit">編集</a>
                     <form action="{{ url_for('delete_request', request_id=row.id) }}" method="POST" style="display: inline;" onsubmit="return confirmDelete();">
@@ -59,7 +69,35 @@
         </tbody>
     </table>
 </div>
+
 <div class="button-container">
     <a href="{{ url_for('index') }}" class="btn btn-primary">新しい申請を追加</a>
 </div>
+
+<script>
+    // フィルター機能
+    function applyFilter() {
+        const filter = document.getElementById('filter-status').value;
+        const rows = document.querySelectorAll('#record-list tr');
+
+        rows.forEach(row => {
+            const status = row.getAttribute('data-status');
+            if (filter === '' || filter === status) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    // 削除確認
+    function confirmDelete() {
+        return confirm("この申請を削除しますか？");
+    }
+
+    // 未確認に戻す確認
+    function confirmUnconfirm() {
+        return confirm("この申請を未確認に戻しますか？");
+    }
+</script>
 {% endblock %}
