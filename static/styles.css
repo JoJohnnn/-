@@ -260,7 +260,7 @@ table tbody tr:hover {
 /* === レスポンシブ対応 === */
 @media screen and (max-width: 768px) {
     body {
-        font-size: 14px; /* 全体の文字サイズを少し小さく */
+        font-size: 7px; /* 全体の文字サイズを少し小さく */
     }
 
     .container {
@@ -268,26 +268,13 @@ table tbody tr:hover {
     }
 
     table th, table td {
-        font-size: 12px; /* テーブルの文字サイズを小さく */
+        font-size: 7px; /* テーブルの文字サイズを小さく */
         padding: 10px;
     }
 
     .btn {
-        font-size: 12px; /* ボタン文字を小さく */
+        font-size: 7px; /* ボタン文字を小さく */
         padding: 6px 10px;
     }
 
-    /* 編集と削除ボタンを横並びに */
-    .action-edit-delete {
-        display: flex;
-        justify-content: space-around;
-        gap: 10px;
-        align-items: center;
-    }
-
-    .btn-edit,
-    .btn-delete {
-        width: 48%; /* ボタンが横並びで均等な幅 */
-        padding: 5px;
-    }
 }

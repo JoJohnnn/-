@@ -6,7 +6,7 @@
 <h1>勤怠修正申請一覧</h1>
 
 <div class="filter-container">
-    <label for="filter-status">確認ステータス:</label>
+    <label for="filter-status">確認状態:</label>
     <select id="filter-status" name="filter-status" onchange="applyFilter()">
         <option value="">すべて</option>
         <option value="confirmed">確認済み</option>
@@ -22,7 +22,7 @@
                 <th>修正日付</th>
                 <th>理由</th>
                 <th>名前</th>
-                <th>確認ステータス</th>
+                <th>確認状態</th>
                 <th>確認時刻</th>
                 <th>編集/削除</th>
                 {% if is_admin %}
